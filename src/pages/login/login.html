@@ -1,0 +1,31 @@
+<ion-header>
+    
+       <ion-navbar color="saHeader">
+          <ion-title>Login</ion-title>
+       </ion-navbar>
+    
+    </ion-header>
+    
+    <ion-content class="cards-bg">
+    
+       <ion-card padding text-center>
+          <ion-item no-lines>
+             <ion-label floating>Usuario</ion-label>
+             <ion-input type="text" [(ngModel)]="loginData.username"></ion-input>
+          </ion-item>
+          <ion-item no-lines>
+             <ion-label floating>Contraseña</ion-label>
+             <ion-input type="password" [(ngModel)]="loginData.password"></ion-input>
+          </ion-item>
+          <br>
+          <button ion-button block color="primary" (click)="checkLoginForm()">
+             Login
+          </button>
+          <br>
+          <p>Don't you have an account?</p>
+          <button ion-button block clear color="secondary" (click)="openRegisterModal()">
+             Create an account
+          </button>
+       </ion-card>
+    
+    </ion-content>
