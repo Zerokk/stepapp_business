@@ -1,15 +1,32 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams} from 'ionic-angular';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+import { PlaceProducts } from '../placeproducts/placeproducts';
+
 import Parse from 'parse';
 
 @Component({
   selector: 'management',
-  templateUrl: 'management.html'
+  templateUrl: 'management.html',
+  animations: [
+    trigger('openItem', [
+      state('closed', style({
+        height: "0px",
+        opacity: 0
+      })),
+      state('opened', style({
+        height: "240px",   // <-- TODO, hay que solucionar esto
+        opacity: 1
+      })),
+      transition('* => *', animate('.35s'))
+    ])
+  ]
 })
 export class Management {
 
   place;
   visitBuffer = [];
+  openstatus = [];
 
   constructor(
     public navCtrl: NavController,
@@ -57,14 +74,12 @@ export class Management {
     let query = new Parse.Query("Visit");
         query.equalTo("placeId", place);
         query.limit(50);
+        query.include("userId");
         query.descending("createdAt");
-        query.find().then( initialData => {
-          if(initialData.length > 1){
-            console.log(" >> SubscribeVisits: found array, mapping. Array: ", initialData);
-            initialData.map((v) => this.visitBuffer.push(v));
-          }else if(initialData != [] && initialData[0]){
-            console.log(" >> SubscribeVisits: found obj, pushing. Obj: ", initialData[0]);
-            this.visitBuffer.push(initialData[0]);
+        query.find().then( data => {
+          if(data[0]){
+            console.log("fetched: ", data)
+            data.map((v) => this.visitBuffer.push(v));
           }
           resolve(query.subscribe());
         }).catch(e => {
@@ -79,13 +94,9 @@ subscribeGroupVisits(place){
       query.equalTo("placeId", place);
       query.limit(50);
       query.descending("createdAt");
-      query.find().then( initialData => {
-        if(initialData.length > 1){
-          console.log(" >> SubscribeGroupVisits: found array, mapping. Array: ", initialData);
-          initialData.map((v) => this.visitBuffer.push(v));
-        }else if(initialData != [] && initialData[0]){
-          console.log(" >> SubscribeGroupVisits: found obj, pushing. Obj: ", initialData[0]);
-          this.visitBuffer.push(initialData[0]);
+      query.find().then( data => {
+        if(data[0]){
+          data.map((v) => this.visitBuffer.push(v));
         }
         resolve(query.subscribe());
       }).catch(e => {
@@ -93,4 +104,69 @@ subscribeGroupVisits(place){
       })
 });
 }
+
+calcTotal(prices){
+  if(prices && prices.length > 1){
+    return prices.reduce( (oldVal, currVal) => oldVal + currVal);
+  }else{
+    return 0
+  }
+}
+
+openItem(index){
+  if(this.visitBuffer[index].get("consumitions") != null){
+    if(this.openstatus[index] == "closed"){
+      this.openstatus[index] = "opened";
+      document.getElementById("item-"+index).classList.remove("visit-item");
+    }else{
+      this.openstatus[index] = "closed";
+      setTimeout(() => {
+        document.getElementById("item-"+index).classList.add("visit-item");
+      }, 350)
+    }
+  }
+}
+
+checkStatus(index){
+  if(this.openstatus[index] == null){
+    console.log("this item has a null status")
+    this.openstatus[index] = "closed";
+    return "closed";
+  }else{
+    console.log("current item status: ", this.openstatus[index])
+    return this.openstatus[index];
+  }
+}
+
+mapConsumitions(consumitions){
+  if(consumitions){
+      let mappedItems = [];
+      consumitions.map(value => {
+        if(mappedItems.length == 0){
+          mappedItems.push({item: value, quantity: 1});
+        }else{
+          for(let i=0;i<mappedItems.length;i++){
+            if(value == mappedItems[i].item){
+              mappedItems[i].quantity++;
+            }else if(i == mappedItems.length-1){
+              mappedItems.push({item: value, quantity: 1});
+            }
+          }
+        }
+      });
+      console.log("mapped items: ", mappedItems)
+      return mappedItems;
+  }else{
+    return null;
+  }
+}
+
+getTotalPrice(consumitions){
+  return consumitions.reduce( (oldVal, currVal) => oldVal+=currVal);
+}
+
+openProducts(){
+  this.navCtrl.push(PlaceProducts, {placeId: this.place.id});
+}
+
 }

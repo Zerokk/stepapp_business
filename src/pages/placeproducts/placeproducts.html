@@ -1,0 +1,24 @@
+<ion-header>
+    <ion-navbar color="saHeader">
+        <ion-title>Place products</ion-title>
+        <ion-buttons left>
+            <button ion-button icon-only (click)="close()">
+                <ion-icon name="arrow-back"></ion-icon>
+            </button>
+        </ion-buttons>
+    </ion-navbar>
+    </ion-header>
+    <ion-content>
+    <ion-list>
+    <ion-list-header *ngIf="isVisit">
+    Click in an item to add it to your cart
+    </ion-list-header>
+        <ion-item *ngFor="let product of productList" text-wrap>
+            <img style="height:80px;width:80px" *ngIf="product.get('productPicture')" [src]="product.get('productPicture').url()" item-left>
+            <h3 item-center>{{product.get('productName')}}</h3>
+            <span item-right>{{product.get('price')}} €</span>
+            <p *ngIf="product.get('description')">{{product.get('description')}}</p>
+        </ion-item>
+    </ion-list>
+</ion-content>
+ 
