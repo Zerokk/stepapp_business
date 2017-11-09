@@ -165,8 +165,8 @@ getTotalPrice(consumitions){
   return consumitions.reduce( (oldVal, currVal) => oldVal+=currVal);
 }
 
-openProducts(){
-  this.navCtrl.push(PlaceProducts, {placeId: this.place.id});
+openProducts(visit){
+  this.navCtrl.push(PlaceProducts, {placeId: this.place.id, visit: visit});
 }
 
 }

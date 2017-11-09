@@ -18,6 +18,7 @@
             <h3 item-center>{{product.get('productName')}}</h3>
             <span item-right>{{product.get('price')}} €</span>
             <p *ngIf="product.get('description')">{{product.get('description')}}</p>
+            <button ion-button small (click)="addProduct(product)">Add</button>
         </ion-item>
     </ion-list>
 </ion-content>
